@@ -1,0 +1,46 @@
+# fly.toml app configuration file generated for lingering-butterfly-1143 on 2023-05-01T16:57:54+02:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = "lingering-butterfly-1143"
+primary_region = "ams"
+
+[env]
+  DATABASE_URL = "file:/mnt/data/production.db"
+  PORT = "8080"
+
+[experimental]
+  cmd = "entrypoint.sh"
+  entrypoint = "sh"
+
+[[mounts]]
+  source = "data"
+  destination = "/mnt/data"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+
+  [[services]]
+  internal_port = 8080
+  processes = ["app"]
+  protocol = "tcp"
+  script_checks = []
+  http_checks = []
+  tcp_checks = []
+  [services.concurrency]
+    hard_limit = 25
+    soft_limit = 20
+    type = "connections"
+
+  [[services.ports]]
+    force_https = true
+    handlers = ["http"]
+    port = 80
+
+  [[services.ports]]
+    handlers = ["tls", "http"]
+    port = 443
