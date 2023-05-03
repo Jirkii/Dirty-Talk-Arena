@@ -7,36 +7,30 @@ export default async function handler(req, res) {
     const { messageId, vote, userId } = req.body;
 
     try {
+      const newVote = await prisma.vote.create({
+        data: {
+          messageId: parseInt(messageId),
+          userId: parseInt(userId),
+          value: vote,
+        },
+      });
+
       const message = await prisma.message.findUnique({
-        where: { id: messageId },
-        include: { user: true },
+        where: { id: parseInt(messageId) },
+        select: { userId: true },
       });
 
-      const votedUserIds = JSON.parse(message.votedUserIds || "[]");
-
-      if (votedUserIds.includes(userId)) {
-        throw new Error("User has already voted");
-      }
-
-      votedUserIds.push(userId);
-
-      const newVoteCount = message.votes + parseInt(vote, 10);
-
-      const updatedMessage = await prisma.message.update({
-        where: { id: messageId },
-        data: { votes: newVoteCount, votedUserIds: JSON.stringify(votedUserIds) },
+      await prisma.user.update({
+        where: { id: message.userId },
+        data: {
+          elo: {
+            increment: vote,
+          },
+        },
       });
 
-      // Update the user's Elo
-      const updatedElo = message.user.elo + vote;
-      const updatedUser = await prisma.user.update({
-        where: { id: message.user.id },
-        data: { elo: updatedElo },
-      });
-
-      res.status(200).json(updatedMessage);
+      res.status(200).json(newVote);
     } catch (error) {
-      console.error("Error updating votes:", error);
       res.status(500).json({ message: "Error updating votes" });
     }
   } else {

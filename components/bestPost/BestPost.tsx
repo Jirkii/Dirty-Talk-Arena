@@ -7,7 +7,7 @@ const BestPost = () => {
   useEffect(() => {
     async function fetchBestMessage() {
       try {
-        const response = await axios.get("/api/messages?best=true");
+        const response = await axios.get("/api/bestPost");
         setBestMessage(response.data);
       } catch (error) {
         console.error("Error fetching best message:", error);

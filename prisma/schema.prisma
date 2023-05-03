@@ -17,13 +17,24 @@ model User {
   elo      Int
   name     String    @unique
   messages Message[]
+  Vote     Vote[]
 }
 
 model Message {
-  id      Int    @id @default(autoincrement())
-  content String
-  votes   Int    @default(0)
-  user    User   @relation(fields: [userId], references: [id])
-  userId  Int
-  votedUserIds  String @default("[]")
+  id        Int      @id @default(autoincrement())
+  content   String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  Vote      Vote[]
+  createdAt DateTime @default(now())
+}
+
+model Vote {
+  messageId Int
+  userId    Int
+  value     Int
+  user      User    @relation(fields: [userId], references: [id])
+  message   Message @relation(fields: [messageId], references: [id])
+
+  @@unique([messageId, userId])
 }

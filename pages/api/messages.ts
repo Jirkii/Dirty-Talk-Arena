@@ -2,55 +2,55 @@ import prisma from "@/lib/prisma";
 
 export default async function handler(req, res) {
   if (req.method === "GET") {
-    if (req.query.best) {
-      const bestMessage = await prisma.message.findFirst({
-        orderBy: {
-          votes: "desc",
+    const messages = await prisma.message.findMany({
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        content: true,
+        userId: true,
+        user: {
+          select: {
+            name: true,
+          },
         },
-        include: {
-          user: true,
+        Vote: {
+          select: {
+            value: true,
+            userId: true,
+          },
         },
-      });
-      res.json(bestMessage);
-    } else {
-      const messages = await prisma.message.findMany({
-        include: {
-          user: true,
-        },
-      });
-      res.json(messages);
-    }
+      },
+    });
+    res.json(messages);
   } else if (req.method === "POST") {
-    const { messageId, vote, userId } = req.body;
+    const { userId, content } = req.body;
 
-    const message = await prisma.message.findUnique({
-      where: { id: messageId },
-    });
-
-    if (!message) {
-      return res.status(404).json({ message: "Message not found" });
+    if (userId && content) {
+      try {
+        const newMessage = await prisma.message.create({
+          data: {
+            user: {
+              connect: {
+                id: parseInt(userId),
+              },
+            },
+            content,
+          },
+        });
+        res.status(201).json(newMessage);
+      } catch (error) {
+        console.log(error);
+        res.status(400).json({ message: "Error creating message", error });
+      }
+    } else {
+      if (!userId) {
+        res.status(400).json({ message: "Missing userId" });
+      } else if (!content) {
+        res.status(400).json({ message: "Missing content" });
+      } else {
+        res.status(400).json({ message: "Bad request" });
+      }
     }
-
-    const votedUserIds = message.votedUserIds || [];
-
-    if (votedUserIds.includes(userId)) {
-      return res
-        .status(400)
-        .json({ message: "User has already voted for this message" });
-    }
-
-    const updatedMessage = await prisma.message.update({
-      where: { id: messageId },
-      data: {
-        votes: message.votes + parseInt(vote, 10),
-        votedUserIds: [...votedUserIds, userId],
-      },
-      include: {
-        user: true,
-      },
-    });
-
-    res.json(updatedMessage);
   } else {
     res.status(405).json({ message: "Method not allowed" });
   }

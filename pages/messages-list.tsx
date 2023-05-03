@@ -5,9 +5,7 @@ import useUser from "@/lib/useUser";
 
 function MessagesList() {
   const [messages, setMessages] = useState([]);
-  const [voteDropdown, setVoteDropdown] = useState(null);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [votedMessageId, setVotedMessageId] = useState(null);
+  const [hover, setHover] = useState({});
 
   const { user } = useUser();
 
@@ -26,64 +24,35 @@ function MessagesList() {
 
   const handleVote = async (messageId, vote) => {
     try {
-      const message = messages.find((message) => message.id === messageId);
-      console.log(message);
-      const votedUserIds = message.votedUserIds || [];
-      if (votedUserIds.includes(user.id)) {
-        setErrorMessage(
-          `Již jste hlasoval pro zprávu '${message.content}' od ${message.user?.name}`
-        );
-        setVotedMessageId(messageId);
-        return;
-      }
-
-      const updatedMessages = messages.map((message) => {
-        if (message.id === messageId) {
-          return {
-            ...message,
-            votes: message.votes + parseInt(vote, 10),
-            votedUserIds: [...votedUserIds, user.id],
-          };
-        }
-        return message;
+      await axios.post("/api/vote", {
+        messageId,
+        vote,
+        userId: user.id,
       });
-      setMessages(updatedMessages);
-      setErrorMessage("");
-      setVotedMessageId(messageId);
-      await axios.post("/api/vote", { messageId, vote, userId: user.id });
+      window.location.reload();
     } catch (error) {
       console.error("Error voting:", error);
-      setErrorMessage("An error occurred while processing your vote");
     }
   };
 
-  const voteColors = [
-    "text-red-500",
-    "text-yellow-500",
-    "text-green-500",
-    "text-blue-500",
-    "text-purple-500",
-  ];
+  const handleMouseEnter = (messageId, ratingValue) => {
+    setHover({ ...hover, [messageId]: ratingValue });
+  };
 
+  const handleMouseLeave = messageId => {
+    setHover({ ...hover, [messageId]: null });
+  };
+  console.log(messages);
   return (
     <Primary>
       <div className="max-w-5xl mx-auto my-20 rounded-lg shadow-messageList">
         <div className="max-w-3xl mx-auto py-10">
           <h1 className="text-2xl font-semibold mb-6">Přehled zpráv</h1>
-          {errorMessage && (
-            <div className="bg-red-500 text-white px-3 py-2 rounded mb-4 font-medium">
-              {errorMessage}
-            </div>
-          )}
           <ul>
-            {messages.map((message) => (
+            {messages.map(message => (
               <li
                 key={message.id}
-                className={`mb-4 shadow-messageItem rounded-lg px-3 py-6 flex justify-between ${
-                  votedMessageId === message.id && errorMessage
-                    ? "border-2 border-red-500"
-                    : ""
-                }`}
+                className={`mb-4 shadow-messageItem rounded-lg px-3 py-6 flex items-center justify-between`}
               >
                 <div className="flex flex-col">
                   <p className="text-lg">
@@ -92,39 +61,44 @@ function MessagesList() {
                     </span>
                     : {message.content}
                   </p>
-                  <div className="flex items-center">
-                    <span>
-                      Počet hlasů: <b>{message.votes}</b>
-                    </span>
-                  </div>
                 </div>
-                <div className="mr-4 self-end flex flex-col-reverse">
-                  <button
-                    className={`text-gray-700 font-semibold border-2 border-primary rounded-lg px-3 py-1.5 max-w-max ${
-                      voteDropdown === message.id ? "self-end" : ""
-                    }`}
-                    onClick={() =>
-                      setVoteDropdown(
-                        voteDropdown === message.id ? null : message.id
-                      )
-                    }
-                  >
-                    <i className="fas fa-thumbs-up"></i>
-                  </button>
-                  {voteDropdown === message.id && (
-                    <ul className="mt-2 p-2 flex pr-0">
-                      {voteColors.map((color, index) => (
-                        <li
-                          key={index + 1}
-                          className={`cursor-pointer hover:bg-gray-100 hover:text-gray-900 p-2 last:pr-0.5 ${color}`}
-                          onClick={() => {
-                            handleVote(message.id, index + 1);
-                            setVoteDropdown(null);
-                          }}
-                        >
-                          <i className="fas fa-thumbs-up"></i> {index + 1}
-                        </li>
-                      ))}
+
+                <div className="mr-4 flex">
+                  {!message.Vote?.find(vote => vote.userId === user?.id) && (
+                    <ul className="p-2 flex gap-2.5">
+                      {[...Array(5)].map((_, index) => {
+                        const ratingValue = index + 1;
+
+                        return (
+                          <>
+                            <label
+                              key={ratingValue}
+                              className="cursor-pointer"
+                              onMouseEnter={() =>
+                                handleMouseEnter(message.id, ratingValue)
+                              }
+                              onMouseLeave={() => handleMouseLeave(message.id)}
+                            >
+                              <input
+                                type="radio"
+                                name="rating"
+                                value={ratingValue}
+                                onClick={() => {
+                                  handleVote(message.id, index + 1);
+                                }}
+                                className="hidden"
+                              />
+                              <i
+                                className={`fas fa-star text-gray-500 fa-lg ${
+                                  ratingValue <= hover[message.id]
+                                    ? "text-red-600"
+                                    : ""
+                                }`}
+                              ></i>
+                            </label>
+                          </>
+                        );
+                      })}
                     </ul>
                   )}
                 </div>

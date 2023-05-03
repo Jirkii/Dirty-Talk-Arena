@@ -1,13 +1,9 @@
 import useUser from "@/lib/useUser";
 import Link from "next/link";
-import { FC, useState } from "react";
+import { useState } from "react";
 import LogoutButton from "../logoutButton/LogoutButton";
 
-interface NavProps {
-  login?: boolean;
-}
-
-const Nav: FC<NavProps> = ({ login }) => {
+const Nav = () => {
   const { user } = useUser();
 
   const [visibleSettings, setVisibleSettings] = useState(false);
@@ -53,7 +49,7 @@ const Nav: FC<NavProps> = ({ login }) => {
                 <hr className="my-4" />
                 <div className="px-4 text-center flex flex-col gap-y-5">
                   <Link
-                    href="/leaderboard"
+                    href="/"
                     className="font-medium hover:underline underline-offset-2"
                   >
                     <i className="fa-solid fa-house mr-2"></i>

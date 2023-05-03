@@ -6,6 +6,8 @@ function Message() {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState("");
   const [messageContent, setMessageContent] = useState("");
+  const [infoMessage, setInfoMessage] = useState("");
+
   useEffect(() => {
     async function fetchData() {
       try {
@@ -19,7 +21,7 @@ function Message() {
     fetchData();
   }, []);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     console.log(selectedUser);
     console.log(messageContent);
@@ -34,14 +36,21 @@ function Message() {
         content: messageContent,
       });
       console.log("Message created:", response.data);
+      setInfoMessage("Zpráva vytvořena");
     } catch (error) {
       console.error("Error creating message:", error);
+      setInfoMessage("Chyba při vytváření hlášky");
     }
   };
 
   return (
     <Primary>
       <div className="max-w-2xl mx-auto shadow-topic my-20 rounded-lg">
+        {infoMessage && (
+          <div className="bg-green-500 text-white px-3 py-2 rounded-t mb-4 font-medium">
+            {infoMessage}
+          </div>
+        )}
         <div className="max-w-md mx-auto py-10">
           <form onSubmit={handleSubmit}>
             <div className="flex flex-col mb-3">
@@ -52,7 +61,7 @@ function Message() {
                 name="users"
                 id="users"
                 className="border-primary border rounded-lg px-2 py-3"
-                onChange={(e) => {
+                onChange={e => {
                   setSelectedUser(e.target.value);
                   console.log(e.target.value);
                 }}
@@ -77,7 +86,7 @@ function Message() {
               <textarea
                 id="textarea"
                 className="border-primary border rounded-lg px-2 py-3"
-                onChange={(e) => setMessageContent(e.target.value)}
+                onChange={e => setMessageContent(e.target.value)}
               ></textarea>
             </div>
             <button

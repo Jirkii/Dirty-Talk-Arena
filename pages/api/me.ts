@@ -9,13 +9,13 @@ export default async function handler(req, res) {
   if (req.method === "GET") {
     try {
       const token = getTokenCookie(req);
+
       if (!token) {
         redirect("/login");
       }
 
-      console.log("🚀 ~ file: me.ts:12 ~ handler ~ token:", token);
       const { id } = verifyToken(token);
-      console.log("🚀 ~ file: me.ts:14 ~ handler ~ id:", id);
+
       if (!id) {
         redirect("/login");
       }
