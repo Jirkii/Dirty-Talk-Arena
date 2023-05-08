@@ -6,7 +6,6 @@ export default async function handler(req, res) {
   if (req.method === "GET") {
     try {
       const topMessage = await prisma.message.findFirst({
-        orderBy: {},
         select: {
           user: {
             select: {

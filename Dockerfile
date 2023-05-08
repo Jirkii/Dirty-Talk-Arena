@@ -1,64 +1,41 @@
-# base node image
-FROM node:16-bullseye-slim as base
+# Install dependencies only when needed
+FROM node:16-alpine AS builder
+# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+COPY . .
+RUN yarn install --frozen-lockfile
 
-# Install openssl for Prisma
-RUN apt-get update && apt-get install -y openssl
+# If using npm with a `package-lock.json` comment out above and use below instead
+# RUN npm ci
+
+ENV NEXT_TELEMETRY_DISABLED 1
+
+# Add `ARG` instructions below if you need `NEXT_PUBLIC_` variables
+# then put the value on your fly.toml
+# Example:
+# ARG NEXT_PUBLIC_EXAMPLE="value here"
+
+RUN yarn build
+
+# If using npm comment out above and use below instead
+# RUN npm run build
+
+# Production image, copy all the files and run next
+FROM node:16-alpine AS runner
+WORKDIR /app
 
 ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
 
-# Install all node_modules, including dev dependencies
-FROM base as deps
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
 
-WORKDIR /app
+COPY --from=builder /app ./
 
-ADD package.json ./
-RUN npm install --production=false
+USER nextjs
 
-# Setup production node_modules
-FROM base as production-deps
+CMD ["yarn", "start"]
 
-WORKDIR /app
-
-COPY --from=deps /app/node_modules /app/node_modules
-ADD package.json ./
-RUN npm prune --production
-
-# Build the app
-FROM base as build
-
-WORKDIR /app
-
-COPY --from=deps /app/node_modules /app/node_modules
-
-ADD prisma .
-RUN npx prisma generate
-
-ADD . .
-RUN npm run build
-
-# Migrate the database
-FROM build as migrate
-
-ENV DATABASE_URL="file:/mnt/data/production.db"
-RUN npx prisma migrate deploy
-
-# Finally, build the production image with minimal footprint
-FROM base
-
-ENV NODE_ENV production
-
-COPY --from=build /app/package.json /app/
-
-RUN echo "#!/bin/sh\nset -x\nsqlite3 $DATABASE_URL" > /usr/local/bin/database-cli && chmod +x /usr/local/bin/database-cli
-
-WORKDIR /app
-
-COPY --from=production-deps /app/node_modules /app/node_modules
-COPY --from=build /app/node_modules/.prisma /app/node_modules/.prisma
-COPY --from=build /app/.next /app/.next
-COPY --from=build /app/public /app/public
-COPY --from=migrate /app/prisma/migrations /app/prisma/migrations
-ADD entrypoint.sh .
-
-ENV PORT 8080
-CMD ["npm", "run", "start"]
+# If using npm comment out above and use below instead
+# CMD ["npm", "run", "start"]

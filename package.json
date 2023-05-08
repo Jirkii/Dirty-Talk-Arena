@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start -p 8080",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prisma:generate": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^4.13.0",
@@ -29,5 +30,8 @@
   },
   "devDependencies": {
     "prisma": "^4.13.0"
+  },
+  "prisma": {
+    "schema": "prisma/schema.prisma"
   }
 }
