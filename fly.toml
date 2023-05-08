@@ -35,3 +35,6 @@ primary_region = "ams"
   [[services.ports]]
     handlers = ["tls", "http"]
     port = 443
+
+[settings]
+  custom_domains = ["dirty-talk-arena.com"]
