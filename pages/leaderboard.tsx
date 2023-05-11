@@ -27,25 +27,36 @@ export default function Leaderboard() {
 
   return (
     <Primary>
-      <div className="max-w-7xl mx-auto shadow-topic my-20 rounded-lg">
-        <div className="py-5 px-10 mx-10">
-          <div className="grid grid-cols-4 gap-4 rounded-lg p-4">
-            <div className="font-semibold border-b border-primary">Pozice</div>
-            <div className="font-semibold border-b border-primary">
-              Nickname
-            </div>
-            <div className="font-semibold border-b border-primary">Elo</div>
-            <div className="font-semibold border-b border-primary">Rank</div>
-
-            {users.map((user, idx) => (
-              <Fragment key={user.id}>
-                <div>{idx + 1}</div>
-                <div>{user.name}</div>
-                <div>{user.elo}</div>
-                <div>{calculateRank(user.elo)}</div>
-              </Fragment>
-            ))}
-          </div>
+      <div className="max-w-7xl mx-auto shadow-topic my-20 rounded-lg overflow-x-auto">
+        <div className="py-5 md:px-10 md:mx-10">
+          <table className="min-w-full divide-y divide-primary rounded-lg border-separate border-spacing-x-2">
+            <thead>
+              <tr>
+                <th className="font-semibold border-b border-primary text-left">
+                  Pozice
+                </th>
+                <th className="font-semibold border-b border-primary text-left">
+                  Nickname
+                </th>
+                <th className="font-semibold border-b border-primary text-left">
+                  Elo
+                </th>
+                <th className="font-semibold border-b border-primary text-left">
+                  Rank
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((user, idx) => (
+                <tr key={user.id}>
+                  <td className="text-left pb-2">{idx + 1}</td>
+                  <td className="text-left pb-2">{user.name}</td>
+                  <td className="text-left pb-2">{user.elo}</td>
+                  <td className="text-left pb-2">{calculateRank(user.elo)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </Primary>

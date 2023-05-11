@@ -45,65 +45,79 @@ function MessagesList() {
   console.log(messages);
   return (
     <Primary>
-      <div className="max-w-5xl mx-auto my-20 rounded-lg shadow-messageList">
-        <div className="max-w-3xl mx-auto py-10">
+      <div className="max-w-5xl mx-5 my-20 rounded-lg shadow-messageList lg:mx-auto">
+        <div className="max-w-3xl mx-auto py-10 px-5">
           <h1 className="text-2xl font-semibold mb-6">Přehled zpráv</h1>
           <ul>
-            {messages.map(message => (
-              <li
-                key={message.id}
-                className={`mb-4 shadow-messageItem rounded-lg px-3 py-6 flex items-center justify-between`}
-              >
-                <div className="flex flex-col">
-                  <p className="text-lg">
-                    <span className="text-secondary font-medium">
-                      {message.user?.name}
+            {messages.map(message => {
+              return (
+                <li
+                  key={message.id}
+                  className={`mb-4 shadow-messageItem rounded-lg px-3 py-6 flex flex-col md:flex-row md:items-center justify-between`}
+                >
+                  <div className="flex flex-col">
+                    <p className="text-lg">
+                      <span className="text-secondary font-medium">
+                        {message.user?.name}
+                      </span>
+                      : {message.content}
+                    </p>
+                    <span className="mt-2.5 text-sm font-medium">
+                      {message.createdAt}
                     </span>
-                    : {message.content}
-                  </p>
-                </div>
-
-                <div className="mr-4 flex">
+                  </div>
                   {!message.Vote?.find(vote => vote.userId === user?.id) && (
-                    <ul className="p-2 flex gap-2.5">
-                      {[...Array(5)].map((_, index) => {
-                        const ratingValue = index + 1;
+                    <div className="mr-4 flex">
+                      <ul className="p-2 flex gap-2.5">
+                        {[...Array(5)].map((_, index) => {
+                          const ratingValue = index + 1;
 
-                        return (
-                          <>
-                            <label
-                              key={ratingValue}
-                              className="cursor-pointer"
-                              onMouseEnter={() =>
-                                handleMouseEnter(message.id, ratingValue)
-                              }
-                              onMouseLeave={() => handleMouseLeave(message.id)}
-                            >
-                              <input
-                                type="radio"
-                                name="rating"
-                                value={ratingValue}
-                                onClick={() => {
-                                  handleVote(message.id, index + 1);
-                                }}
-                                className="hidden"
-                              />
-                              <i
-                                className={`fas fa-star text-gray-500 fa-lg ${
-                                  ratingValue <= hover[message.id]
-                                    ? "text-red-600"
-                                    : ""
-                                }`}
-                              ></i>
-                            </label>
-                          </>
-                        );
-                      })}
-                    </ul>
+                          return (
+                            <>
+                              <label
+                                key={ratingValue}
+                                className="cursor-pointer"
+                                onMouseEnter={() =>
+                                  handleMouseEnter(message.id, ratingValue)
+                                }
+                                onMouseLeave={() =>
+                                  handleMouseLeave(message.id)
+                                }
+                              >
+                                <input
+                                  type="radio"
+                                  name="rating"
+                                  value={ratingValue}
+                                  onClick={() => {
+                                    handleVote(message.id, index + 1);
+                                  }}
+                                  className="hidden"
+                                />
+                                <i
+                                  className={`fas fa-star text-gray-500 fa-lg ${
+                                    ratingValue <= hover[message.id]
+                                      ? "text-red-600"
+                                      : ""
+                                  }`}
+                                ></i>
+                              </label>
+                            </>
+                          );
+                        })}
+                      </ul>
+                    </div>
                   )}
-                </div>
-              </li>
-            ))}
+                  {message.Vote?.find(vote => vote.userId === user?.id) && (
+                    <div className="mt-5">
+                      Počet hlasů:{" "}
+                      <span className="text-secondary font-medium">
+                        {message.totalVotes}
+                      </span>
+                    </div>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </div>
       </div>

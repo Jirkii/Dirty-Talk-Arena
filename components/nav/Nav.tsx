@@ -34,7 +34,7 @@ const Nav = () => {
                 className="fixed inset-0 bg-black bg-opacity-30 z-10"
                 onClick={handleClick}
               ></div>
-              <div className="fixed inset-y-0 right-0 max-w-1/3 w-1/4 h-screen bg-white shadow-lg z-20">
+              <div className="fixed inset-y-0 right-0 max-w-2/3 w-3/4 md:max-w-1/3 md:w-1/4 h-screen bg-white shadow-lg z-20">
                 <div className="px-4 py-6 flex justify-center items-center">
                   <img
                     src="/avatar.svg"

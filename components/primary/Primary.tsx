@@ -11,7 +11,7 @@ const Primary: FC<PrimaryProps> = ({ children, login }) => {
   return (
     <>
       <Header login={login} />
-      <main className="min-h-screen">{children}</main>
+      <main className="min-h-screen px-5">{children}</main>
       <Footer />
     </>
   );

@@ -15,6 +15,7 @@ export default function Document() {
           href="https://fonts.googleapis.com/css2?family=Bruno+Ace&display=swap"
           rel="stylesheet"
         />
+        <title>Dirty Talk Arena</title>
       </Head>
       <body>
         <Main />

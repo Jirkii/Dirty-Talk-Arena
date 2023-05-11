@@ -52,7 +52,7 @@ function Message() {
           </div>
         )}
         <div className="max-w-md mx-auto py-10">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="px-5 md:px-0">
             <div className="flex flex-col mb-3">
               <label htmlFor="users" className="mb-2">
                 Pro hráče:

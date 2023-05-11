@@ -8,6 +8,7 @@ export default async function handler(req, res) {
         id: true,
         content: true,
         userId: true,
+        createdAt: true,
         user: {
           select: {
             name: true,
@@ -21,7 +22,21 @@ export default async function handler(req, res) {
         },
       },
     });
-    res.json(messages);
+
+    const formattedMessages = messages.map(message => {
+      const totalVotes = message.Vote.reduce(
+        (total, vote) => total + vote.value,
+        0,
+      );
+
+      return {
+        ...message,
+        createdAt: new Date(message.createdAt).toLocaleDateString("cs-CZ"),
+        totalVotes: totalVotes,
+      };
+    });
+
+    res.json(formattedMessages);
   } else if (req.method === "POST") {
     const { userId, content } = req.body;
 
