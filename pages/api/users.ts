@@ -24,6 +24,8 @@ export default async function handler(req, res) {
         return {
           id: user.id,
           name: user.name,
+          bgColor: user.bgColor,
+          icon: user.icon,
         };
       });
 

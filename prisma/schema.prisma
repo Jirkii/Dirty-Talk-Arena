@@ -17,6 +17,8 @@ model User {
   password String
   elo      Int
   name     String    @unique
+  bgColor  String?
+  icon     String?
   messages Message[]
   Vote     Vote[]
 }

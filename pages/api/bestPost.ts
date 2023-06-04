@@ -20,15 +20,39 @@ export default async function handler(req, res) {
           id: group[0].messageId,
         },
         select: {
+          id: true,
           content: true,
+          userId: true,
+          createdAt: true,
           user: {
             select: {
               name: true,
+              icon: true,
+              bgColor: true,
+            },
+          },
+          Vote: {
+            select: {
+              value: true,
+              userId: true,
             },
           },
         },
       });
-      res.status(200).json(topMessage);
+
+      const totalPoints = topMessage?.Vote.reduce(
+        (total, vote) => total + vote.value,
+        0,
+      );
+
+      const averageVote =
+        topMessage?.Vote.length > 0 ? totalPoints / topMessage?.Vote.length : 0;
+
+      const formattedMessage = {
+        ...topMessage,
+        averageVote: averageVote,
+      };
+      res.status(200).json(formattedMessage);
     } catch (error) {
       res.status(500).json({ message: "Error fetching top message" });
     }

@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+const defaultTheme = require("tailwindcss/defaultTheme");
+
 module.exports = {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -13,11 +15,25 @@ module.exports = {
         messageItem: "0 0 20px 0 rgba(0,0,0,0.6)",
       },
       backgroundImage: {
-        "avatar": "url('/avatar.svg')",
+        avatar: "url('/img/svg/avatar.svg')",
       },
       colors: {
-        primary: "#D9D9D9",
-        secondary: "#940000",
+        black: {
+          bg: " #262626",
+          input: "#363636",
+          textInput: "#C2C2C2",
+          textSecondary: "#A4A4A4",
+          border: "#505050",
+          stars: "#D6D6D6",
+        },
+        blue: {
+          bg: "#4f46e5",
+        },
+        green: "#B6FFBD",
+        purple: "#E879F9",
+      },
+      fontFamily: {
+        sans: ["Inter var", ...defaultTheme.fontFamily.sans],
       },
     },
   },

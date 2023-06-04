@@ -1,6 +1,6 @@
 const Footer = () => {
   return (
-    <footer className="border-t border-gray-300 shadow-lg">
+    <footer>
       <div className="mx-5 py-6">
         <span className="font-semibold text-sm">
           Copyright &copy; {new Date().getFullYear()} dirtytalkarena.com, Inc.

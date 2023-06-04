@@ -3,14 +3,13 @@ import Footer from "../footer/Footer";
 import { FC } from "react";
 
 interface PrimaryProps {
-  login?: boolean;
   children: any;
 }
 
-const Primary: FC<PrimaryProps> = ({ children, login }) => {
+const Primary: FC<PrimaryProps> = ({ children }) => {
   return (
     <>
-      <Header login={login} />
+      <Header />
       <main className="min-h-screen px-5">{children}</main>
       <Footer />
     </>

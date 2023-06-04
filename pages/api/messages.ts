@@ -1,3 +1,5 @@
+import { verifyToken } from "@/lib/auth";
+import { getTokenCookie } from "@/lib/cookies";
 import prisma from "@/lib/prisma";
 
 export default async function handler(req, res) {
@@ -12,6 +14,8 @@ export default async function handler(req, res) {
         user: {
           select: {
             name: true,
+            icon: true,
+            bgColor: true,
           },
         },
         Vote: {
@@ -24,29 +28,51 @@ export default async function handler(req, res) {
     });
 
     const formattedMessages = messages.map(message => {
-      const totalVotes = message.Vote.reduce(
+      const totalPoints = message.Vote.reduce(
         (total, vote) => total + vote.value,
         0,
       );
 
+      const averageVote =
+        message.Vote.length > 0 ? totalPoints / message.Vote.length : 0;
+
       return {
         ...message,
-        createdAt: new Date(message.createdAt).toLocaleDateString("cs-CZ"),
-        totalVotes: totalVotes,
+        averageVote: averageVote,
       };
     });
 
     res.json(formattedMessages);
   } else if (req.method === "POST") {
     const { userId, content } = req.body;
-
     if (userId && content) {
       try {
+        const parsedUserId = parseInt(userId);
+        if (isNaN(parsedUserId)) {
+          throw new Error(`Invalid userId: ${userId}`);
+        }
+
+        const token = getTokenCookie(req);
+
+        if (!token) {
+          res.status(401).json({ message: "Not authenticated" });
+          return;
+        }
+
+        const { id } = verifyToken(token);
+
+        if (!id || parsedUserId === id) {
+          res
+            .status(400)
+            .json({ message: "You cannot send a message to yourself!" });
+          return;
+        }
+
         const newMessage = await prisma.message.create({
           data: {
             user: {
               connect: {
-                id: parseInt(userId),
+                id: parsedUserId,
               },
             },
             content,

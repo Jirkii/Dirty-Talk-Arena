@@ -6,6 +6,27 @@ export default async function handler(req, res) {
   if (req.method === "POST") {
     const { messageId, vote, userId } = req.body;
 
+    if (!req.user || req.user.id !== userId) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    // Kontrola, zda již uživatel nehlasoval
+    const existingVote = await prisma.vote.findFirst({
+      where: {
+        messageId: parseInt(messageId),
+        userId: parseInt(userId),
+      },
+    });
+
+    if (existingVote) {
+      return res.status(403).json({ message: "User has already voted" });
+    }
+
+    // Kontrola hodnoty hlasu
+    if (vote < 1 || vote > 5) {
+      return res.status(400).json({ message: "Invalid vote value" });
+    }
+
     try {
       const newVote = await prisma.vote.create({
         data: {

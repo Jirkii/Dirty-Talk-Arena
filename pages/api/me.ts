@@ -1,7 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { getTokenCookie } from "../../lib/cookies";
 import { verifyToken } from "../../lib/auth";
-import { redirect } from "next/navigation";
 
 const prisma = new PrismaClient();
 
@@ -11,22 +10,25 @@ export default async function handler(req, res) {
       const token = getTokenCookie(req);
 
       if (!token) {
-        redirect("/login");
+        res.status(401).json({ message: "Not authenticated" });
+        return;
       }
 
       const { id } = verifyToken(token);
 
       if (!id) {
-        redirect("/login");
+        res.status(401).json({ message: "Not authenticated" });
+        return;
       }
 
-      const user = await prisma.user.findUnique({ where: { id } });
+      let user = await prisma.user.findUnique({ where: { id } });
 
       if (!user) {
         res.status(401).json({ message: "User not found" });
         return;
       }
 
+      console.log(user);
       res.status(200).json({ user });
     } catch (error) {
       console.log(error);

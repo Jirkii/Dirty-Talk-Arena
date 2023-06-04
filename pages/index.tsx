@@ -2,41 +2,36 @@ import React from "react";
 import useUser from "../lib/useUser";
 import Primary from "@/components/primary/Primary";
 import BestPost from "@/components/bestPost/BestPost";
-import Link from "next/link";
+import Leaderboard from "@/components/leaderboard/Leaderboard";
+import CreateMessage from "@/components/createMessage/CreateMessage";
+import OverViewMessages from "@/components/overviewMessages/OverviewMessages";
+import { useRouter } from "next/router";
 
 function Dashboard() {
   const { user, loading } = useUser();
+  const router = useRouter();
 
   if (loading) {
     return <div>Loading...</div>;
   }
 
   if (!user) {
-    return (
-      <Primary>
-        <div className="mx-auto max-w-[420px] flex flex-col items-center my-10 shadow-topic rounded-lg py-10">
-          <h1 className="font-medium text-2xl">
-            Prosím <span className="text-secondary">přihlaš se</span>!
-          </h1>
-          <Link
-            href="/login"
-            className="mt-10 border-primary border px-6 py-3 rounded-lg bg-secondary text-white font-medium hover:bg-black transition-colors"
-          >
-            Přihlásit se
-          </Link>
-        </div>
-      </Primary>
-    );
+    router.push("/login");
+    return null;
   }
 
   return (
     <Primary>
-      <div className="mx-auto max-w-[420px] flex flex-col items-center my-10 shadow-topic rounded-lg py-10">
-        <h1 className="font-medium text-2xl">
-          Vítej, <span className="text-secondary">{user.name}</span>!
-        </h1>
+      <div className="flex align-baseline max-w-[1120px] mx-auto gap-0 sm:gap-10 lg:gap-20 flex-col md:flex-row">
+        <div className="w-full flex-[1.5]">
+          <CreateMessage />
+          <BestPost />
+          <OverViewMessages />
+        </div>
+        <div className="flex-1">
+          <Leaderboard />
+        </div>
       </div>
-      <BestPost />
     </Primary>
   );
 }
